@@ -1,7 +1,7 @@
 function getCoords(fileName,varargin)
 
-    mask = getArgumentValue('mask',false,varargin{:},'warningoff');
-    operation = getArgumentValue('operation','max',varargin{:},'warningoff');
+    mask = false;%getArgumentValue('mask',false,varargin{:},'warningoff');
+    operation = 'max';%getArgumentValue('operation','max',varargin{:},'warningoff');
 
     data = load_untouch_nii(fileName);
     if mask
@@ -10,17 +10,19 @@ function getCoords(fileName,varargin)
     end
 
 
+switch operation
+    case 'max'
+        [val,coords] = Max3d(data.img);
+        data.img(coords(1),coords(2),coords(3)) = 0;   
+        ['Coordinates: ',num2str(coords), ' value: ', num2str(val)]
+        [val2,coords2] = Max3d(data.img);
 
-[val,coords] = Max3d(data.img);
-data.img(coords(1),coords(2),coords(3)) = 0;   
-['Coordinates: ',num2str(coords), ' value: ', num2str(val)]
-[val2,coords2] = Max3d(data.img);
+        while val == val2
+            [val,coords] = Max3d(data.img);
+            ['Coordinates: ',num2str(coords), ' value: ', num2str(val)]
+            data.img(coords(1),coords(2),coords(3)) = 0;   
+            [val2,coords2] = Max3d(data.img);
 
-while val == val2
-    [val,coords] = Max3d(data.img);
-    ['Coordinates: ',num2str(coords), ' value: ', num2str(val)]
-    data.img(coords(1),coords(2),coords(3)) = 0;   
-    [val2,coords2] = Max3d(data.img);
-    
+        end
+    otherwise
 end
-
